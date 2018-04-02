@@ -60,42 +60,57 @@ var SymbolCanvas = /** @class */ (function (_super) {
     __extends(SymbolCanvas, _super);
     function SymbolCanvas(element) {
         var _this = _super.call(this) || this;
-        _this.onPressDown = function (event) {
+        _this.previousCoords = null;
+        _this.isPressingDown = false;
+        _this.drewBeforeRelease = false;
+        _this.onMouseDown = function (event) {
             event.preventDefault();
             _this.isPressingDown = true;
+        };
+        _this.onTouchStart = function (event) {
+            event.preventDefault();
+            _this.isPressingDown = true;
+        };
+        _this.onMouseUp = function (event) {
+            _this.onPressRelease(event);
+        };
+        _this.onTouchEnd = function (event) {
+            _this.onPressRelease(event);
         };
         _this.onPressRelease = function (event) {
             event.preventDefault();
             _this.isPressingDown = false;
             _this.previousCoords = null;
-            // increment current trace if person moved mouse between mouse down and up
+            // Do not register as a
             if (!_this.drewBeforeRelease) {
                 return;
             }
             _this.drewBeforeRelease = false;
             _this.emit('release');
         };
+        _this.normalizeTouchEventCoords = function (event) {
+            var target = event.target;
+            var rect = target.getBoundingClientRect();
+            var targetTouch = event.targetTouches[0];
+            var offsetX = targetTouch.pageX;
+            var offsetY = targetTouch.pageY;
+            return utils.calculateTouchPosistion(rect, offsetX, offsetY);
+        };
         _this.onTouchMove = function (event) {
-            console.log("Touch move", _this.isPressingDown);
             if (!_this.isPressingDown) {
                 return;
             }
             if (!_this.drewBeforeRelease) {
                 _this.drewBeforeRelease = true;
             }
-            var target = event.target;
-            var rect = target.getBoundingClientRect();
-            var targetTouch = event.targetTouches[0];
-            var offsetX = targetTouch.pageX;
-            var offsetY = targetTouch.pageY;
-            var currentCoordinates = utils.calculateTouchPosistion(rect, offsetX, offsetY);
-            _this.handleNewCoordinates(currentCoordinates);
+            _this.handleNewCoordinates(_this.normalizeTouchEventCoords(event));
         };
         _this.onMouseMove = function (event) {
             if (!_this.isPressingDown) {
                 return;
             }
             event.preventDefault();
+            console.log('Mouse move');
             if (!_this.drewBeforeRelease) {
                 _this.drewBeforeRelease = true;
             }
@@ -130,15 +145,12 @@ var SymbolCanvas = /** @class */ (function (_super) {
         };
         _this.element = element;
         _this.context = element[0].getContext('2d');
-        _this.element.addEventListener('mousedown', _this.onPressDown);
-        _this.element.addEventListener('touchstart', _this.onPressDown);
-        _this.element.addEventListener('mouseup', _this.onPressRelease);
-        _this.element.addEventListener('touchend', _this.onPressRelease);
+        _this.element.addEventListener('mousedown', _this.onMouseDown);
+        _this.element.addEventListener('touchstart', _this.onTouchStart);
+        _this.element.addEventListener('mouseup', _this.onMouseUp);
+        _this.element.addEventListener('touchend', _this.onTouchEnd);
         _this.element.addEventListener('mousemove', _this.onMouseMove);
         _this.element.addEventListener('touchmove', _this.onTouchMove);
-        _this.isPressingDown = false;
-        _this.previousCoords = null;
-        _this.drewBeforeRelease = false;
         return _this;
     }
     return SymbolCanvas;
@@ -149,6 +161,33 @@ var CanvasController = /** @class */ (function (_super) {
     function CanvasController(canvas) {
         var _this = _super.call(this) || this;
         _this.eraseRadius = 10;
+        _this.handleDraw = function (currentCoords, previousCoords) {
+            if (_this.isErasing) {
+                _this.buffer = utils.removeOverlapping(_this.buffer, currentCoords, _this.eraseRadius);
+                _this.canvas.drawCircle(currentCoords, _this.eraseRadius);
+            }
+            else {
+                _this.buffer[_this.traceIndex].push(currentCoords);
+                if (previousCoords !== null) {
+                    _this.canvas.drawLine(previousCoords, currentCoords);
+                }
+            }
+        };
+        _this.handleRelease = function () {
+            _this.emit('release', __assign({}, _this.buffer));
+        };
+        _this.markTraceGroups = function (traceGroupIndexes, color) {
+            if (color === void 0) { color = 'red'; }
+            traceGroupIndexes.forEach(function (groupIndex) {
+                var trace = _this.buffer[groupIndex];
+                if (trace === undefined) {
+                    throw new Error("Attempted to mark trace not in buffer. groupIndex: " + groupIndex + ". buffer: " + JSON.stringify(_this.buffer));
+                }
+                for (var i = 0; i < trace.length - 2; i++) {
+                    _this.canvas.drawLine(trace[i], trace[i + 1], color, 4);
+                }
+            });
+        };
         _this.canvas = canvas;
         canvas.on('draw', _this.handleDraw);
         canvas.on('release', _this.handleRelease);
@@ -156,21 +195,6 @@ var CanvasController = /** @class */ (function (_super) {
         _this.traceIndex = 0;
         return _this;
     }
-    CanvasController.prototype.handleDraw = function (currentCoords, previousCoords) {
-        if (this.isErasing) {
-            this.buffer = utils.removeOverlapping(this.buffer, currentCoords, this.eraseRadius);
-            this.canvas.drawCircle(currentCoords, this.eraseRadius);
-        }
-        else {
-            this.buffer[this.traceIndex].push(currentCoords);
-            if (previousCoords !== null) {
-                this.canvas.drawLine(previousCoords, currentCoords);
-            }
-        }
-    };
-    CanvasController.prototype.handleRelease = function () {
-        this.emit('release', __assign({}, this.buffer));
-    };
     return CanvasController;
 }(EventEmitter));
 exports.CanvasController = CanvasController;

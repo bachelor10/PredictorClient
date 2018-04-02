@@ -7,9 +7,9 @@ export class SymbolCanvas extends EventEmitter {
 
     private element: HTMLCanvasElement;
     private context: CanvasRenderingContext2D
-    private isPressingDown: boolean
-    private previousCoords: Coordinates2D | null
-    private drewBeforeRelease: boolean
+    private previousCoords: Coordinates2D = null
+    private isPressingDown = false
+    private drewBeforeRelease = false
     
 
     constructor(element: HTMLCanvasElement){
@@ -17,27 +17,39 @@ export class SymbolCanvas extends EventEmitter {
         this.element = element;
         this.context = element[0].getContext('2d')
         
-        this.element.addEventListener('mousedown', this.onPressDown);
-        this.element.addEventListener('touchstart', this.onPressDown);
+        this.element.addEventListener('mousedown', this.onMouseDown);
+        this.element.addEventListener('touchstart', this.onTouchStart);
 
-        this.element.addEventListener('mouseup', this.onPressRelease)
-        this.element.addEventListener('touchend', this.onPressRelease)
+        this.element.addEventListener('mouseup', this.onMouseUp)
+        this.element.addEventListener('touchend', this.onTouchEnd)
 
         this.element.addEventListener('mousemove', this.onMouseMove)
         this.element.addEventListener('touchmove', this.onTouchMove)
 
-        this.isPressingDown = false;
-        this.previousCoords = null;
-
-        this.drewBeforeRelease = false;
 
     }
 
-    private onPressDown = (event: Event) => {
+    private onMouseDown = (event: MouseEvent) => {
         event.preventDefault();
 
-        this.isPressingDown = true; 
-    };
+        this.isPressingDown = true;
+    
+    }
+    private onTouchStart = (event: TouchEvent) => {
+        event.preventDefault()
+
+        this.isPressingDown = true;
+
+
+    }
+
+    private onMouseUp = (event: MouseEvent) => {
+        this.onPressRelease(event)
+
+    }
+    private onTouchEnd = (event: TouchEvent) => {
+        this.onPressRelease(event)
+    }
 
     private onPressRelease = (event: Event) => {
         event.preventDefault();
@@ -46,7 +58,7 @@ export class SymbolCanvas extends EventEmitter {
     
         this.previousCoords = null;
     
-        // increment current trace if person moved mouse between mouse down and up
+        // Do not register as a
         if(!this.drewBeforeRelease){
             return;
         }
@@ -56,15 +68,7 @@ export class SymbolCanvas extends EventEmitter {
         this.emit('release')
         
     }
-    private onTouchMove = (event: TouchEvent) => {
-        console.log("Touch move", this.isPressingDown)
-        if(!this.isPressingDown){
-            return;
-        }
-        if(!this.drewBeforeRelease){
-            this.drewBeforeRelease = true
-        }
-
+    private normalizeTouchEventCoords = (event: TouchEvent) => {
         const target = event.target as HTMLElement;
         const rect = target.getBoundingClientRect();
 
@@ -73,9 +77,18 @@ export class SymbolCanvas extends EventEmitter {
         const offsetX = targetTouch.pageX;
         const offsetY = targetTouch.pageY;
 
-        const currentCoordinates = utils.calculateTouchPosistion(rect, offsetX, offsetY);
+        return utils.calculateTouchPosistion(rect, offsetX, offsetY);
 
-        this.handleNewCoordinates(currentCoordinates)
+    }
+    private onTouchMove = (event: TouchEvent) => {
+        if(!this.isPressingDown){
+            return;
+        }
+        if(!this.drewBeforeRelease){
+            this.drewBeforeRelease = true
+        }
+
+        this.handleNewCoordinates(this.normalizeTouchEventCoords(event))
 
     }
     private onMouseMove = (event: MouseEvent) => {
@@ -83,6 +96,7 @@ export class SymbolCanvas extends EventEmitter {
             return;
         }
         event.preventDefault();
+        console.log('Mouse move')
 
         if(!this.drewBeforeRelease){
             this.drewBeforeRelease = true
@@ -147,7 +161,7 @@ export class CanvasController extends EventEmitter{
         this.traceIndex = 0;
     }
 
-    handleDraw(currentCoords: Coordinates2D, previousCoords: Coordinates2D){
+    private handleDraw = (currentCoords: Coordinates2D, previousCoords: Coordinates2D) => {
 
         if(this.isErasing){
             this.buffer = utils.removeOverlapping(this.buffer, currentCoords, this.eraseRadius)
@@ -162,8 +176,23 @@ export class CanvasController extends EventEmitter{
         }
     }
 
-    handleRelease(){
+    private handleRelease = () => {
         this.emit('release', {...this.buffer})
+    }
+
+    public markTraceGroups = (traceGroupIndexes: number[], color = 'red'): void => {
+        traceGroupIndexes.forEach(groupIndex => {
+
+            const trace = this.buffer[groupIndex];
+
+            if(trace === undefined) {
+                throw new Error("Attempted to mark trace not in buffer. groupIndex: " + groupIndex + ". buffer: " + JSON.stringify(this.buffer));
+            }
+
+            for(let i = 0; i<trace.length-2;i++){
+                this.canvas.drawLine(trace[i], trace[i+1], color, 4)
+            }
+        });
     }
 }
 
