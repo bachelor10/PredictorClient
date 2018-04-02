@@ -1,3 +1,4 @@
+import {Coordinates2D} from './global'
 export function calculateTouchPosistion(rectangle: ClientRect, pageOffsetX: number, pageOffsetY): Coordinates2D {
     // https://stackoverflow.com/questions/17130940/retrieve-the-same-offsetx-on-touch-like-mouse-event
 

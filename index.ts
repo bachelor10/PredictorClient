@@ -1,8 +1,9 @@
 import * as utils from './utils';
-import EventEmitter from "eventemitter3";
+import * as EventEmitter from "eventemitter3";
 import axios from "axios";
+import {Coordinates2D} from './global'
 
-class SymbolCanvas extends EventEmitter {
+export class SymbolCanvas extends EventEmitter {
 
     private element: HTMLCanvasElement;
     private context: CanvasRenderingContext2D
@@ -23,7 +24,7 @@ class SymbolCanvas extends EventEmitter {
         this.element.addEventListener('touchend', this.onPressRelease)
 
         this.element.addEventListener('mousemove', this.onMouseMove)
-        this.element.addEventListener('touchmove', this.onToucheMove)
+        this.element.addEventListener('touchmove', this.onTouchMove)
 
         this.isPressingDown = false;
         this.previousCoords = null;
@@ -32,12 +33,13 @@ class SymbolCanvas extends EventEmitter {
 
     }
 
-    private onPressDown(event: Event) {
+    private onPressDown = (event: Event) => {
         event.preventDefault();
-        this.isPressingDown = true;    
+
+        this.isPressingDown = true; 
     };
 
-    private onPressRelease(event: Event) {
+    private onPressRelease = (event: Event) => {
         event.preventDefault();
 
         this.isPressingDown = false;
@@ -54,7 +56,8 @@ class SymbolCanvas extends EventEmitter {
         this.emit('release')
         
     }
-    private onToucheMove(event: TouchEvent){
+    private onTouchMove = (event: TouchEvent) => {
+        console.log("Touch move", this.isPressingDown)
         if(!this.isPressingDown){
             return;
         }
@@ -75,7 +78,7 @@ class SymbolCanvas extends EventEmitter {
         this.handleNewCoordinates(currentCoordinates)
 
     }
-    private onMouseMove(event: MouseEvent) {
+    private onMouseMove = (event: MouseEvent) => {
         if(!this.isPressingDown){
             return;
         }
@@ -91,15 +94,16 @@ class SymbolCanvas extends EventEmitter {
 
     
     }
-    private handleNewCoordinates(coords: Coordinates2D) {
+    private handleNewCoordinates = (coords: Coordinates2D) => {
 
-        this.emit('draw', {...coords}, {...this.previousCoords})
+        const previousCoords = this.previousCoords === null ? this.previousCoords : {...this.previousCoords}
+        this.emit('draw', {...coords}, previousCoords)
 
         this.previousCoords = coords;
 
     }
 
-    public drawLine(fromCoords: Coordinates2D, toCoords: Coordinates2D, color = "#A0A3A6", lineWidth = 5) {
+    public drawLine = (fromCoords: Coordinates2D, toCoords: Coordinates2D, color = "#A0A3A6", lineWidth = 5) => {
 
         this.context.lineWidth = lineWidth;
         this.context.strokeStyle = color;
@@ -112,7 +116,7 @@ class SymbolCanvas extends EventEmitter {
         this.context.stroke();
     }
 
-    public drawCircle(coords: Coordinates2D, radius = 10, fillStyle= "white") {
+    public drawCircle = (coords: Coordinates2D, radius = 10, fillStyle= "white") => {
         this.context.beginPath();
         
         this.context.arc(coords.x, coords.y, radius, 0, 2 * Math.PI, false);
@@ -123,7 +127,7 @@ class SymbolCanvas extends EventEmitter {
     }
 }
 
-class CanvasController extends EventEmitter{
+export class CanvasController extends EventEmitter{
     private canvas: SymbolCanvas
     private traceIndex: number
     private buffer: Coordinates2D[][]
@@ -164,7 +168,7 @@ class CanvasController extends EventEmitter{
 }
 
 
-class MessageService {
+export class MessageService {
     serverPath: string
 
     constructor(serverPath: string){
