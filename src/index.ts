@@ -206,7 +206,10 @@ export class CanvasController extends EventEmitter{
     }
 }
 
+console.log("Im running here", window)
+
+var thisWindow: any = window as any
 if (typeof window !== 'undefined') {
-    window.SymbolCanvas = SymbolCanvas;
-    window.CanvasController = CanvasController
+    thisWindow.SymbolCanvas = SymbolCanvas;
+    thisWindow.CanvasController = CanvasController
 }

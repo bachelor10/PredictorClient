@@ -58,7 +58,7 @@ System.register("utils", [], function (exports_1, context_1) {
 System.register("index", ["utils", "../node_modules/eventemitter3/index"], function (exports_2, context_2) {
     "use strict";
     var __moduleName = context_2 && context_2.id;
-    var utils, EventEmitter, SymbolCanvas, CanvasController;
+    var utils, EventEmitter, SymbolCanvas, CanvasController, thisWindow;
     return {
         setters: [
             function (utils_1) {
@@ -213,6 +213,12 @@ System.register("index", ["utils", "../node_modules/eventemitter3/index"], funct
                 return CanvasController;
             }(EventEmitter));
             exports_2("CanvasController", CanvasController);
+            console.log("Im running here", window);
+            thisWindow = window;
+            if (typeof window !== 'undefined') {
+                thisWindow.SymbolCanvas = SymbolCanvas;
+                thisWindow.CanvasController = CanvasController;
+            }
         }
     };
 });
