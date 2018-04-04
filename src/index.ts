@@ -1,3 +1,6 @@
+/// <reference path="./utils.ts" />
+/// <reference path="../node_modules/eventemitter3/index.js" />
+
 import * as utils from './utils';
 import * as EventEmitter from '../node_modules/eventemitter3/index';
 
@@ -208,8 +211,10 @@ export class CanvasController extends EventEmitter{
 
 console.log("Im running here", window)
 
-var thisWindow: any = window as any
 if (typeof window !== 'undefined') {
-    thisWindow.SymbolCanvas = SymbolCanvas;
-    thisWindow.CanvasController = CanvasController
+    let window:any;
+    window.SymbolCanvas = SymbolCanvas;   
+
+    window.SymbolCanvas = SymbolCanvas;
+    window.CanvasController = CanvasController
 }

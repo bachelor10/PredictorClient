@@ -1,3 +1,4 @@
+
 import { Coordinates2D } from './index';
 
 export function calculateTouchPosistion(rectangle: ClientRect, pageOffsetX: number, pageOffsetY: number): Coordinates2D {

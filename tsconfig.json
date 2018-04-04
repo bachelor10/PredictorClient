@@ -1,13 +1,14 @@
 {
     "compilerOptions": {
-        "module": "amd",
+        "module": "es6",
         "target": "es5",
         "removeComments": true,
         "allowJs": true,
         "preserveConstEnums": true,
-        "outFile": "dist/index.js",
+        "outDir": "./dist/",
         "sourceMap": true,
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "listFiles": true
     },
     "include": [
         "src/**/*"
