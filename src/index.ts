@@ -205,3 +205,8 @@ export class CanvasController extends EventEmitter{
         });
     }
 }
+
+if (typeof window !== 'undefined') {
+    window.SymbolCanvas = SymbolCanvas;
+    window.CanvasController = CanvasController
+}
