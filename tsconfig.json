@@ -1,1 +1,19 @@
-{}
+{
+    "compilerOptions": {
+        "module": "system",
+        "target": "es5",
+        "removeComments": true,
+        "allowJs": true,
+        "preserveConstEnums": true,
+        "outFile": "dist/index.js",
+        "sourceMap": true,
+        "noImplicitAny": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*__tests__/*"
+    ]
+}

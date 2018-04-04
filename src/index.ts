@@ -1,7 +1,10 @@
 import * as utils from './utils';
-import * as EventEmitter from "eventemitter3";
-import axios from "axios";
-import {Coordinates2D} from './global'
+import * as EventEmitter from '../node_modules/eventemitter3/index';
+
+export interface Coordinates2D {
+    x: number,
+    y: number
+}
 
 export class SymbolCanvas extends EventEmitter {
 
@@ -15,7 +18,7 @@ export class SymbolCanvas extends EventEmitter {
     constructor(element: HTMLCanvasElement){
         super()
         this.element = element;
-        this.context = element[0].getContext('2d')
+        this.context = element.getContext('2d')
         
         this.element.addEventListener('mousedown', this.onMouseDown);
         this.element.addEventListener('touchstart', this.onTouchStart);
@@ -96,7 +99,6 @@ export class SymbolCanvas extends EventEmitter {
             return;
         }
         event.preventDefault();
-        console.log('Mouse move')
 
         if(!this.drewBeforeRelease){
             this.drewBeforeRelease = true
@@ -141,31 +143,37 @@ export class SymbolCanvas extends EventEmitter {
     }
 }
 
+export interface ControllerOptions {
+    isErasing: boolean
+    eraseRadius: number
+}
+
 export class CanvasController extends EventEmitter{
+    public options: ControllerOptions
     private canvas: SymbolCanvas
-    private traceIndex: number
-    private buffer: Coordinates2D[][]
-    public isErasing: boolean
-    public eraseRadius: number = 10
+    private traceIndex: number = 0
+    private buffer: Coordinates2D[][] = [[]]
 
 
 
-    constructor(canvas: SymbolCanvas){
+
+    constructor(canvas: SymbolCanvas, options: ControllerOptions = {isErasing: false, eraseRadius: 10}){
         super()
         this.canvas = canvas;
 
         canvas.on('draw', this.handleDraw)
         canvas.on('release', this.handleRelease)
 
-        this.isErasing = false;
-        this.traceIndex = 0;
+        this.options = options
+        this.traceIndex = 0
+
     }
 
     private handleDraw = (currentCoords: Coordinates2D, previousCoords: Coordinates2D) => {
 
-        if(this.isErasing){
-            this.buffer = utils.removeOverlapping(this.buffer, currentCoords, this.eraseRadius)
-            this.canvas.drawCircle(currentCoords, this.eraseRadius)
+        if(this.options.isErasing){
+            this.buffer = utils.removeOverlapping(this.buffer, currentCoords, this.options.eraseRadius)
+            this.canvas.drawCircle(currentCoords, this.options.eraseRadius)
         }
 
         else {
@@ -177,6 +185,8 @@ export class CanvasController extends EventEmitter{
     }
 
     private handleRelease = () => {
+        this.buffer.push([]);
+        this.traceIndex += 1;
         this.emit('release', {...this.buffer})
     }
 
@@ -195,44 +205,3 @@ export class CanvasController extends EventEmitter{
         });
     }
 }
-
-
-export class MessageService {
-    serverPath: string
-
-    constructor(serverPath: string){
-        this.serverPath = serverPath;
-    }
-
-    async requestPrediction(buffer: Coordinates2D[][]){
-
-        try{
-            const apiUrl = `${this.serverPath}/api`
-            const result = await axios.post(apiUrl, JSON.stringify(buffer))
-
-            return JSON.stringify(result);
-
-        }
-        catch(error){
-            throw error
-        }
-    }
-}
-
-/**
- * Example code
- * 
- * const canvas = document.getElementById("canvas")
- * 
- * const symbolCanvas = new SymbolCanvas(canvas)
- * 
- * const canvasController = new CanvasController(symbolCanvas)
- * 
- * const messageService = new MessageService("localhost:3000")
- * 
- * canvasController.on('release', async (buffer) => {
- *      const result = await messageService.requestPrediction(buffer);
- * 
- *      console.log("Result in latex", result.latex)
- * })
- */

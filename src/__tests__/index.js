@@ -1,5 +1,5 @@
-import {CanvasController, SymbolCanvas, MessageService} from './index'
-
+import {CanvasController, SymbolCanvas} from '../index'
+import * as utils from './utils'
 
 describe('SymbolCanvas', () => {
 
@@ -13,12 +13,11 @@ describe('SymbolCanvas', () => {
 
     beforeEach(() => {
         canvasMock = {
-            "0": {
-                getContext: () => {}
-            },
+            getContext: () => {},
             addEventListener: (eventType, callback) => {
                 listeners[eventType] = {count: 1, func: callback}
-            }
+            },
+            
         }
     })
 
@@ -142,8 +141,107 @@ describe('SymbolCanvas', () => {
 
         expect(eventFunc).toHaveBeenCalledTimes(1)
     })
-
-
 })
 
+
+
+describe('CanvasController', () => {
+
+    let eventCallbacks = {};
+
+    let symbolCanvasMock = {};
+
+    let drawLineSpy;
+
+    let drawCircleSpy;
+
+    beforeEach(() => {
+
+        eventCallbacks = {}
+        drawLineSpy = jest.fn()
+        drawCircleSpy = jest.fn()
+
+        symbolCanvasMock = {
+            on: (event, callback) => {
+                eventCallbacks[event] = callback
+            },
+            drawLine: drawLineSpy,
+            drawCircle: drawCircleSpy
+
+        }
+    })
+
+    it('Attaches correct listeners', () => {
+
+        const canvasController = new CanvasController(symbolCanvasMock);
+
+        expect(eventCallbacks['release']).toBeDefined()
+
+        expect(eventCallbacks['draw']).toBeDefined()
+
+    })
+
+    it('Dispatches release when canvas dispatches release', () => {
+        const canvasController = new CanvasController(symbolCanvasMock);
+
+        const spyCallback = jest.fn()
+
+        canvasController.on('release', spyCallback);
+
+        eventCallbacks['release']()
+        eventCallbacks['release']()
+
+        expect(spyCallback).toHaveBeenCalledTimes(2)
+
+    })
+
+    it('Adds drawing correctly to buffer and calls draw line', () => {
+
+        const canvasController = new CanvasController(symbolCanvasMock);
+
+        eventCallbacks['draw']({x: 10, y: 10}, null)
+        eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
+
+
+        expect(canvasController.buffer).toEqual([[{x: 10, y: 10}, {x: 20, y: 20}]])
+
+        expect(drawLineSpy).toHaveBeenCalledWith({x: 10, y: 10}, {x: 20, y: 20})
+
+    })
+
+    it('Creates new buffer after release', () => {
+
+        const canvasController = new CanvasController(symbolCanvasMock);
+
+        eventCallbacks['draw']({x: 10, y: 10}, null)
+        eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
+
+        eventCallbacks['release']()
+
+        eventCallbacks['draw']({x: 10, y: 10}, null)
+        eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
+
+
+        expect(canvasController.buffer).toEqual([[{x: 10, y: 10}, {x: 20, y: 20}], [{x: 10, y: 10}, {x: 20, y: 20}]])
+
+    })
+
+    it('Erases both from buffer and canvas', () => {
+
+        const canvasController = new CanvasController(symbolCanvasMock, {eraseRadius: 10});
+
+        eventCallbacks['draw']({x: 10, y: 10}, null)
+        eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
+
+        canvasController.options.isErasing = true
+
+        eventCallbacks['draw']({x: 25, y: 25}, {x: 20, y: 20})
+
+
+        expect(canvasController.buffer).toEqual([[{x: 10, y: 10}]])
+
+        expect(drawCircleSpy).toHaveBeenCalledWith({x: 25, y: 25}, 10)
+
+    })
+})
 

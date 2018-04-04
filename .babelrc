@@ -1,4 +1,4 @@
 {
     "presets": ["es2015", "stage-0"],
-    "plugins": ["babel-polyfill"]
+    "plugins": ["babel-polyfill", "syntax-dynamic-import"]
   }
