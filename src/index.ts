@@ -188,9 +188,10 @@ export class CanvasController extends EventEmitter{
     }
 
     private handleRelease = () => {
-        this.buffer.push([]);
+        this.emit('release', [...this.buffer])
         this.traceIndex += 1;
-        this.emit('release', {...this.buffer})
+        this.buffer.push([]);
+
     }
 
     public markTraceGroups = (traceGroupIndexes: number[], color = 'red'): void => {
