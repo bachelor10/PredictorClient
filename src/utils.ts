@@ -11,7 +11,7 @@ export function calculateTouchPosistion(rectangle: ClientRect, pageOffsetX: numb
 
 }
 
-export function distance(fromPoint: Coordinates2D, toPoint: Coordinates2D){
+export function distance(fromPoint: Coordinates2D, toPoint: Coordinates2D): number{
     return Math.sqrt(Math.pow(fromPoint.x - toPoint.x, 2) + Math.pow(fromPoint.y - toPoint.y, 2))
 }
 
@@ -37,3 +37,19 @@ export function removeOverlapping(buffer: Coordinates2D[][], compareCoords: Coor
     })
     return newBuffer;
 }
+
+export function getOverlapping(buffer: Coordinates2D[][], compareCoords: Coordinates2D, radius: number){
+
+    let index = -1
+    buffer.forEach((trace, i) => {
+        const hasMatch = trace.some((coord) => {
+            return distance(coord, compareCoords) < radius
+        })
+        if(hasMatch){
+            index = i;
+            return false;
+        }
+    }) 
+    return index
+}
+

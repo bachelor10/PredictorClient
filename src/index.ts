@@ -16,6 +16,7 @@ export class SymbolCanvas extends EventEmitter {
     private previousCoords: Coordinates2D = null
     private isPressingDown = false
     private drewBeforeRelease = false
+    private initialClickPosition: Coordinates2D = null
     
 
     constructor(element: HTMLCanvasElement){
@@ -36,13 +37,18 @@ export class SymbolCanvas extends EventEmitter {
     }
 
     private onMouseDown = (event: MouseEvent) => {
+
         event.preventDefault();
 
+        this.initialClickPosition = {x: event.offsetX, y: event.offsetY}
         this.isPressingDown = true;
     
     }
     private onTouchStart = (event: TouchEvent) => {
+
         event.preventDefault()
+
+        this.initialClickPosition = this.normalizeTouchEventCoords(event)
 
         this.isPressingDown = true;
 
@@ -50,10 +56,12 @@ export class SymbolCanvas extends EventEmitter {
     }
 
     private onMouseUp = (event: MouseEvent) => {
+
         this.onPressRelease(event)
 
     }
     private onTouchEnd = (event: TouchEvent) => {
+
         this.onPressRelease(event)
     }
 
@@ -62,10 +70,12 @@ export class SymbolCanvas extends EventEmitter {
 
         this.isPressingDown = false;
     
+
         this.previousCoords = null;
-    
-        // Do not register as a
+            // Do not register as a
         if(!this.drewBeforeRelease){
+            this.drewBeforeRelease = true
+            this.emit('click', this.initialClickPosition)
             return;
         }
 
@@ -90,14 +100,16 @@ export class SymbolCanvas extends EventEmitter {
         if(!this.isPressingDown){
             return;
         }
+        event.preventDefault();
+
         if(!this.drewBeforeRelease){
             this.drewBeforeRelease = true
         }
-
         this.handleNewCoordinates(this.normalizeTouchEventCoords(event))
 
     }
     private onMouseMove = (event: MouseEvent) => {
+
         if(!this.isPressingDown){
             return;
         }
@@ -113,6 +125,7 @@ export class SymbolCanvas extends EventEmitter {
 
     
     }
+
     private handleNewCoordinates = (coords: Coordinates2D) => {
 
         const previousCoords = this.previousCoords === null ? this.previousCoords : {...this.previousCoords}
@@ -121,6 +134,7 @@ export class SymbolCanvas extends EventEmitter {
         this.previousCoords = coords;
 
     }
+
 
     public drawLine = (fromCoords: Coordinates2D, toCoords: Coordinates2D, color = "#A0A3A6", lineWidth = 5) => {
 
@@ -166,6 +180,7 @@ export class CanvasController extends EventEmitter{
 
         canvas.on('draw', this.handleDraw)
         canvas.on('release', this.handleRelease)
+        canvas.on('click', this.handleCanvasClick)
 
         this.options = options
         this.traceIndex = 0
@@ -191,10 +206,18 @@ export class CanvasController extends EventEmitter{
         this.emit('release', [...this.buffer])
         this.traceIndex += 1;
         this.buffer.push([]);
+    }
 
+    private handleCanvasClick = (coords: Coordinates2D) => {
+        const overlappingIndex = utils.getOverlapping(this.buffer, coords, 50)
+        if(overlappingIndex >= 0){
+
+            this.emit('symbolclick', overlappingIndex)
+        }
     }
 
     public markTraceGroups = (traceGroupIndexes: number[], color = 'red'): void => {
+
         traceGroupIndexes.forEach(groupIndex => {
 
             const trace = this.buffer[groupIndex];
