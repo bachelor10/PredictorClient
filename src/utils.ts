@@ -38,6 +38,18 @@ export function removeOverlapping(buffer: Coordinates2D[][], compareCoords: Coor
     return newBuffer;
 }
 
+export const accumulateDistance = (trace: Coordinates2D[]) => {
+    return trace.reduce((accumulator, currentValue, currentIndex) => {
+        if(currentIndex >= trace.length - 1) return accumulator
+        console.log("DIstance between", currentValue, currentIndex, trace[currentIndex + 1])
+
+        return accumulator + distance(currentValue, trace[currentIndex + 1])
+    }, 0)
+}
+
+export const getArrayIndexes = (arr: any[]) => {
+    return arr.map((_, i) => i)
+}
 export function getOverlapping(buffer: Coordinates2D[][], compareCoords: Coordinates2D, radius: number){
 
     let index = -1

@@ -158,13 +158,34 @@ export class SymbolCanvas extends EventEmitter {
         this.context.fill();
     
     }
+
+    public clearCanvas = () => {
+        this.context.clearRect(0,0, this.element.width, this.element.height);
+
+    }
 }
 
 export interface ControllerOptions {
     isErasing: boolean
-    eraseRadius: number
+    eraseRadius: number,
+    minTraceCount: number,
+    minTraceDistance: number,
+    canvasColor: string,
+    canvasSelectedColor: string,
+    strokeWidth: number,
+    strokeColor: string
 }
 
+const defaultControllerOptions = {
+    isErasing: false,
+    eraseRadius: 10,
+    minTraceCount: 5,
+    minTraceDistance: 10,
+    canvasColor: 'white',
+    canvasSelectedColor: 'red',
+    strokeWidth: 5,
+    strokeColor: '#A0A3A6'
+}
 export class CanvasController extends EventEmitter{
     public options: ControllerOptions
     private canvas: SymbolCanvas
@@ -174,7 +195,7 @@ export class CanvasController extends EventEmitter{
 
 
 
-    constructor(canvas: SymbolCanvas, options: ControllerOptions = {isErasing: false, eraseRadius: 10}){
+    constructor(canvas: SymbolCanvas, options: ControllerOptions = defaultControllerOptions){
         super()
         this.canvas = canvas;
 
@@ -191,7 +212,7 @@ export class CanvasController extends EventEmitter{
 
         if(this.options.isErasing){
             this.buffer = utils.removeOverlapping(this.buffer, currentCoords, this.options.eraseRadius)
-            this.canvas.drawCircle(currentCoords, this.options.eraseRadius)
+            this.redrawBuffer()
         }
 
         else {
@@ -202,10 +223,34 @@ export class CanvasController extends EventEmitter{
         }
     }
 
+    private validateTrace = (trace: Coordinates2D[], minTraceCount: number, minTraceDistance: number) => {
+        if(trace.length < minTraceCount){
+            return false;
+        }
+
+        const traceDistance = utils.accumulateDistance(trace)
+
+        if(traceDistance <= minTraceDistance){
+            return false
+        }
+
+        return true
+    }
+
     private handleRelease = () => {
-        this.emit('release', [...this.buffer])
-        this.traceIndex += 1;
-        this.buffer.push([]);
+
+        const {minTraceCount, minTraceDistance} = this.options;
+
+        const isValidTrace = this.validateTrace(this.buffer[this.buffer.length - 1], minTraceCount, minTraceDistance)
+        if(isValidTrace){
+            this.emit('release', [...this.buffer])
+            this.traceIndex += 1;
+            this.buffer.push([]);    
+        }
+        else {
+            this.buffer[this.buffer.length - 1] = [];
+            this.redrawBuffer()
+        }
     }
 
     private handleCanvasClick = (coords: Coordinates2D) => {
@@ -216,18 +261,22 @@ export class CanvasController extends EventEmitter{
         }
     }
 
-    public markTraceGroups = (traceGroupIndexes: number[], color = 'red'): void => {
+    public redrawBuffer = () => {
+        this.canvas.clearCanvas()
+        this.markTraceGroups(utils.getArrayIndexes(this.buffer), this.options.strokeColor, this.options.strokeWidth)
+    }
+
+    public markTraceGroups = (traceGroupIndexes: number[], color = this.options.canvasSelectedColor, strokeWidth = this.options.strokeWidth): void => {
 
         traceGroupIndexes.forEach(groupIndex => {
-
             const trace = this.buffer[groupIndex];
 
             if(trace === undefined) {
                 throw new Error("Attempted to mark trace not in buffer. groupIndex: " + groupIndex + ". buffer: " + JSON.stringify(this.buffer));
             }
 
-            for(let i = 0; i<trace.length-2;i++){
-                this.canvas.drawLine(trace[i], trace[i+1], color, 4)
+            for(let i = 0; i<trace.length-1;i++){
+                this.canvas.drawLine(trace[i], trace[i+1], color, strokeWidth)
             }
         });
     }

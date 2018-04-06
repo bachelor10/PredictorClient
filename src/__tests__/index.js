@@ -6,7 +6,8 @@ describe('SymbolCanvas', () => {
     let listeners = {};
 
     let defaultEvent = {
-        preventDefault: () => {}
+        preventDefault: () => {},
+
     }
 
     let canvasMock;
@@ -40,7 +41,7 @@ describe('SymbolCanvas', () => {
         expect(symbolCanvas.isPressingDown).toBe(false)
 
 
-        listeners['touchstart'].func(defaultEvent)
+        listeners['mousedown'].func(defaultEvent)
 
         expect(symbolCanvas.isPressingDown).toBe(true)
     })
@@ -48,9 +49,9 @@ describe('SymbolCanvas', () => {
     it('Resets isPressingDown on release', () => {
         const symbolCanvas = new SymbolCanvas(canvasMock);
 
-        listeners['touchstart'].func(defaultEvent)
+        listeners['mousedown'].func(defaultEvent)
 
-        listeners['touchend'].func(defaultEvent)
+        listeners['mouseup'].func(defaultEvent)
 
         expect(symbolCanvas.isPressingDown).toBe(false)
     })
@@ -58,7 +59,6 @@ describe('SymbolCanvas', () => {
     it('Handles onTouchMove correctly', () => {
         const symbolCanvas = new SymbolCanvas(canvasMock);
 
-        listeners['touchstart'].func(defaultEvent)
 
         const touchEvent = {
             target: {
@@ -67,8 +67,10 @@ describe('SymbolCanvas', () => {
                     left: 0
                 })
             },
+            preventDefault: () => {},
             targetTouches: [{pageX: 0, pageY: 0}]
         }
+        listeners['touchstart'].func(touchEvent)
 
         const eventFunc = jest.fn()
 
@@ -85,7 +87,7 @@ describe('SymbolCanvas', () => {
 
     it('Handles onMouseMove correctly', () => {
         const symbolCanvas = new SymbolCanvas(canvasMock);
-        listeners['touchstart'].func(defaultEvent)
+        listeners['mousedown'].func(defaultEvent)
 
 
         const mouseEvent = {
@@ -116,13 +118,13 @@ describe('SymbolCanvas', () => {
 
         symbolCanvas.on('release', eventFunc)
 
-        listeners['touchstart'].func(defaultEvent)
-        listeners['touchend'].func(defaultEvent)
+        listeners['mousedown'].func(defaultEvent)
+        listeners['mouseup'].func(defaultEvent)
 
         expect(eventFunc).not.toHaveBeenCalled()
     })
 
-    it('Emits release when touch move has occured', () => {
+    it('Emits release when mouse move has occured', () => {
         const symbolCanvas = new SymbolCanvas(canvasMock);
 
         const eventFunc = jest.fn()
@@ -135,9 +137,9 @@ describe('SymbolCanvas', () => {
             offsetY: 0
         }
 
-        listeners['touchstart'].func(defaultEvent)
+        listeners['mousedown'].func(defaultEvent)
         listeners['mousemove'].func(mouseEvent)
-        listeners['touchend'].func(defaultEvent)
+        listeners['mouseup'].func(defaultEvent)
 
         expect(eventFunc).toHaveBeenCalledTimes(1)
     })
