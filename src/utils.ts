@@ -41,8 +41,6 @@ export function removeOverlapping(buffer: Coordinates2D[][], compareCoords: Coor
 export const accumulateDistance = (trace: Coordinates2D[]) => {
     return trace.reduce((accumulator, currentValue, currentIndex) => {
         if(currentIndex >= trace.length - 1) return accumulator
-        console.log("DIstance between", currentValue, currentIndex, trace[currentIndex + 1])
-
         return accumulator + distance(currentValue, trace[currentIndex + 1])
     }, 0)
 }
