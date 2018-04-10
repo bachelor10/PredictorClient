@@ -53,6 +53,7 @@ export function getOverlapping(buffer: Coordinates2D[][], compareCoords: Coordin
 
     let index = -1
     let closestMatch = Number.MAX_VALUE
+    let hasMatch = false
 
     buffer.forEach((trace, i) => {
         let closestMatchInTrace = Number.MAX_VALUE
@@ -60,6 +61,9 @@ export function getOverlapping(buffer: Coordinates2D[][], compareCoords: Coordin
             const dist = distance(coord, compareCoords);
             if(dist < closestMatchInTrace){
                 closestMatchInTrace = dist
+            }
+            if(dist < radius){
+                hasMatch = true;
             }
         })
         if(closestMatchInTrace < closestMatch){
