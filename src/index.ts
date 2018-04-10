@@ -256,6 +256,9 @@ export class CanvasController extends EventEmitter{
         }
         else {
             this.buffer[this.buffer.length - 1] = [];
+            const toRelease = [...this.buffer];
+            delete toRelease[this.buffer.length - 1]
+            this.emit('release', toRelease)
             this.redrawBuffer()
         }
     }
