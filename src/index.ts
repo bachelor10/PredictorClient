@@ -161,7 +161,6 @@ export class SymbolCanvas extends EventEmitter {
 
     public clearCanvas = () => {
         this.context.clearRect(0,0, this.element.width, this.element.height);
-
     }
 }
 
@@ -173,7 +172,8 @@ export interface ControllerOptions {
     canvasColor: string,
     canvasSelectedColor: string,
     strokeWidth: number,
-    strokeColor: string
+    strokeColor: string,
+    validateTrace: boolean
 }
 
 const defaultControllerOptions = {
@@ -184,7 +184,8 @@ const defaultControllerOptions = {
     canvasColor: 'white',
     canvasSelectedColor: 'red',
     strokeWidth: 5,
-    strokeColor: '#A0A3A6'
+    strokeColor: '#A0A3A6',
+    validateTrace: true
 }
 export class CanvasController extends EventEmitter{
     public options: ControllerOptions
@@ -228,6 +229,8 @@ export class CanvasController extends EventEmitter{
     }
 
     private validateTrace = (trace: Coordinates2D[], minTraceCount: number, minTraceDistance: number) => {
+        if(!this.options.validateTrace) return true;
+
         if(trace.length < minTraceCount){
             return false;
         }
@@ -260,7 +263,6 @@ export class CanvasController extends EventEmitter{
     private handleCanvasClick = (coords: Coordinates2D) => {
         const overlappingIndex = utils.getOverlapping(this.buffer, coords, 50)
         if(overlappingIndex >= 0){
-
             this.emit('symbolclick', overlappingIndex)
         }
     }

@@ -48,18 +48,25 @@ export const accumulateDistance = (trace: Coordinates2D[]) => {
 export const getArrayIndexes = (arr: any[]) => {
     return arr.map((_, i) => i)
 }
+
 export function getOverlapping(buffer: Coordinates2D[][], compareCoords: Coordinates2D, radius: number){
 
     let index = -1
+    let closestMatch = Number.MAX_VALUE
+
     buffer.forEach((trace, i) => {
-        const hasMatch = trace.some((coord) => {
-            return distance(coord, compareCoords) < radius
+        let closestMatchInTrace = Number.MAX_VALUE
+        trace.forEach((coord) => {
+            const dist = distance(coord, compareCoords);
+            if(dist < closestMatchInTrace){
+                closestMatchInTrace = dist
+            }
         })
-        if(hasMatch){
+        if(closestMatchInTrace < closestMatch){
             index = i;
-            return false;
+            closestMatch = closestMatchInTrace
         }
     }) 
-    return index
+    return index;
 }
 

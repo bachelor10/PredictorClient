@@ -168,14 +168,15 @@ describe('CanvasController', () => {
                 eventCallbacks[event] = callback
             },
             drawLine: drawLineSpy,
-            drawCircle: drawCircleSpy
+            drawCircle: drawCircleSpy,
+            clearCanvas: () => true
 
         }
     })
 
     it('Attaches correct listeners', () => {
 
-        const canvasController = new CanvasController(symbolCanvasMock);
+        const canvasController = new CanvasController(symbolCanvasMock, {validateTrace: false});
 
         expect(eventCallbacks['release']).toBeDefined()
 
@@ -184,7 +185,7 @@ describe('CanvasController', () => {
     })
 
     it('Dispatches release when canvas dispatches release', () => {
-        const canvasController = new CanvasController(symbolCanvasMock);
+        const canvasController = new CanvasController(symbolCanvasMock, {validateTrace: false});
 
         const spyCallback = jest.fn()
 
@@ -199,7 +200,7 @@ describe('CanvasController', () => {
 
     it('Adds drawing correctly to buffer and calls draw line', () => {
 
-        const canvasController = new CanvasController(symbolCanvasMock);
+        const canvasController = new CanvasController(symbolCanvasMock, {validateTrace: false});
 
         eventCallbacks['draw']({x: 10, y: 10}, null)
         eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
@@ -213,7 +214,7 @@ describe('CanvasController', () => {
 
     it('Creates new buffer after release', () => {
 
-        const canvasController = new CanvasController(symbolCanvasMock);
+        const canvasController = new CanvasController(symbolCanvasMock, {validateTrace: false});
 
         eventCallbacks['draw']({x: 10, y: 10}, null)
         eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
@@ -230,7 +231,7 @@ describe('CanvasController', () => {
 
     it('Erases both from buffer and canvas', () => {
 
-        const canvasController = new CanvasController(symbolCanvasMock, {eraseRadius: 10});
+        const canvasController = new CanvasController(symbolCanvasMock, {eraseRadius: 10, validateTrace: false});
 
         eventCallbacks['draw']({x: 10, y: 10}, null)
         eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
@@ -240,9 +241,7 @@ describe('CanvasController', () => {
         eventCallbacks['draw']({x: 25, y: 25}, {x: 20, y: 20})
 
 
-        expect(canvasController.buffer).toEqual([[{x: 10, y: 10}]])
-
-        expect(drawCircleSpy).toHaveBeenCalledWith({x: 25, y: 25}, 10)
+        expect(canvasController.buffer).toEqual([[{x: 10, y: 10}], []])
 
     })
 })
