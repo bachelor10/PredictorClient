@@ -7,13 +7,11 @@ The library includes a SymbolCanvas class, which handles most of the communicati
 
 1. Drawing lines between coordinates.
 2. Drawing filled circles (for erasing)
-3. Converting touch- and mouse events to normalized coordinates.
+3. Converting touch - and mouse events to normalized coordinates.
 4. Clearing the canvas.
 
 ### Canvas controller
-The canvas controller class handles the communication between the canvas, and your application, as well as common utility operations.
-
-Its features are:
+The canvas controller class handles the communication between the canvas and your application, as well as common utility operations. Its features are:
 
 1. Keeps a datastructure of coordinates in the format the server expects.
 2. Validates touch events, in the case that a user clicked unintentionally.
@@ -49,4 +47,4 @@ canvasController.on("symbolclick", traceIndex => {
 })
 ```
 
-A full example can be found in [symbol predictor server](https://github.com/bachelor10/symbol-predictor-server/blob/master/example/index.js)
+A full example can be found in [symbol predictor server](https://github.com/bachelor10/symbol-predictor-server/blob/master/example/index.js).
