@@ -180,7 +180,7 @@ var CanvasController = (function (_super) {
                 _this.buffer.push([]);
                 _this.traceIndex = _this.buffer.length - 1;
             }
-            if (isValidTrace || _this.options.isErasing) {
+            else if (isValidTrace) {
                 _this.emit('release', _this.buffer.slice());
                 _this.buffer.push([]);
                 _this.traceIndex = _this.buffer.length - 1;

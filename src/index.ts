@@ -256,7 +256,7 @@ export class CanvasController extends EventEmitter{
             this.traceIndex = this.buffer.length - 1
 
         }
-        if(isValidTrace || this.options.isErasing){
+        else if(isValidTrace){
             this.emit('release', [...this.buffer])
             this.buffer.push([]);    
             this.traceIndex = this.buffer.length - 1;
