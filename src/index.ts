@@ -213,6 +213,7 @@ export class CanvasController extends EventEmitter{
 
         if(this.options.isErasing){
             this.buffer = utils.removeOverlapping(this.buffer, currentCoords, this.options.eraseRadius)
+    
             if(this.buffer[this.buffer.length - 1].length !== 0){
                 this.buffer.push([])
             }

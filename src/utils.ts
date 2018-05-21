@@ -31,7 +31,7 @@ export function removeOverlapping(buffer: Coordinates2D[][], compareCoords: Coor
             }
         })
         //Remove empty arrays
-        const filteredAndRemovedTrace = filteredTrace.filter(arr => arr.length > 0)
+        const filteredAndRemovedTrace = filteredTrace.filter(arr => arr.length > 1)
         newBuffer = newBuffer.concat(filteredAndRemovedTrace)
         
     })
