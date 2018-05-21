@@ -249,8 +249,7 @@ export class CanvasController extends EventEmitter{
         const {minTraceCount, minTraceDistance} = this.options;
 
         const isValidTrace = this.validateTrace(this.buffer[this.buffer.length - 1], minTraceCount, minTraceDistance)
-        console.log("Handle release!", isValidTrace, this.buffer)
-        if(isValidTrace){
+        if(isValidTrace || this.options.isErasing){
             this.emit('release', [...this.buffer])
             this.traceIndex += 1;
             this.buffer.push([]);    

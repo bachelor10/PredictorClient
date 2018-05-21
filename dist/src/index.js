@@ -174,8 +174,7 @@ var CanvasController = (function (_super) {
         _this.handleRelease = function () {
             var _a = _this.options, minTraceCount = _a.minTraceCount, minTraceDistance = _a.minTraceDistance;
             var isValidTrace = _this.validateTrace(_this.buffer[_this.buffer.length - 1], minTraceCount, minTraceDistance);
-            console.log("Handle release!", isValidTrace, _this.buffer);
-            if (isValidTrace) {
+            if (isValidTrace || _this.options.isErasing) {
                 _this.emit('release', _this.buffer.slice());
                 _this.traceIndex += 1;
                 _this.buffer.push([]);
