@@ -213,8 +213,7 @@ export class CanvasController extends EventEmitter{
 
         if(this.options.isErasing){
             this.buffer = utils.removeOverlapping(this.buffer, currentCoords, this.options.eraseRadius)
-    
-            if(this.buffer[this.buffer.length - 1].length !== 0){
+            if(this.buffer.length === 0 || this.buffer[this.buffer.length - 1].length !== 0){
                 this.buffer.push([])
             }
             this.traceIndex = this.buffer.length - 1
@@ -250,6 +249,7 @@ export class CanvasController extends EventEmitter{
         const {minTraceCount, minTraceDistance} = this.options;
 
         const isValidTrace = this.validateTrace(this.buffer[this.buffer.length - 1], minTraceCount, minTraceDistance)
+        console.log("Handle release!", isValidTrace, this.buffer)
         if(isValidTrace){
             this.emit('release', [...this.buffer])
             this.traceIndex += 1;

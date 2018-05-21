@@ -237,11 +237,13 @@ describe('CanvasController', () => {
         eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
 
         canvasController.options.isErasing = true
+        console.log("Buffer", canvasController.buffer)
 
         eventCallbacks['draw']({x: 25, y: 25}, {x: 20, y: 20})
 
+        console.log("Buffer", canvasController.buffer)
 
-        expect(canvasController.buffer).toEqual([[{x: 10, y: 10}], []])
+        expect(canvasController.buffer).toEqual([[]]) // Removes the whole trace as there only is one point
 
     })
 })

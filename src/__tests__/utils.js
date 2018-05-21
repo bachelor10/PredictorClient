@@ -9,15 +9,16 @@ describe('Utils', () => {
                     {x: 0, y: 0},
                     {x: 5, y: 5},
                     {x: -5, y: -5},
-                    {x: 10, y: 10}
+                    {x: 10, y: 10},
+                    {x: 20, y: 20}
                 ]
             ]
-            const newBuffer = utils.removeOverlapping(buffer, {x: -2.5, y: -2.5}, 5)
+            const newBuffer = utils.removeOverlapping(buffer, {x: -5, y: -5}, 2)
     
     
             expect(newBuffer).toEqual([
-                [{x: 5, y: 5}],
-                [{x: 10, y: 10}]
+                [{x: 0, y: 0}, {x: 5, y: 5}],
+                [{x: 10, y: 10}, {x: 20, y: 20}]
             ])
         })
     
