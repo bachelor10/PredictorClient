@@ -45,6 +45,7 @@ var SymbolCanvas = (function (_super) {
         _this.onPressRelease = function (event) {
             event.preventDefault();
             _this.isPressingDown = false;
+            console.log("Dispatching release, drew before", _this.drewBeforeRelease);
             _this.previousCoords = null;
             if (!_this.drewBeforeRelease) {
                 _this.drewBeforeRelease = true;

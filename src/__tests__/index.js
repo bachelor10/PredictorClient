@@ -237,14 +237,32 @@ describe('CanvasController', () => {
         eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
 
         canvasController.options.isErasing = true
-        console.log("Buffer", canvasController.buffer)
 
         eventCallbacks['draw']({x: 25, y: 25}, {x: 20, y: 20})
 
-        console.log("Buffer", canvasController.buffer)
 
         expect(canvasController.buffer).toEqual([[]]) // Removes the whole trace as there only is one point
 
     })
+
+    it("Releases after a buffer is erased", () => {
+        const canvasController = new CanvasController(symbolCanvasMock, {eraseRadius: 10, validateTrace: false});
+
+        const spyCallback = jest.fn()
+
+        canvasController.on('release', spyCallback);
+
+        eventCallbacks['draw']({x: 10, y: 10}, null)
+        eventCallbacks['draw']({x: 20, y: 20}, {x: 10, y: 10})
+        eventCallbacks['release']()
+        canvasController.options.isErasing = true
+
+        eventCallbacks['draw']({x: 60, y: 60}, {x: 65, y: 65})
+        eventCallbacks['release']()
+
+        expect(spyCallback).toHaveBeenCalledTimes(2)
+
+    })
+
 })
 

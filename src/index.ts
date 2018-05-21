@@ -70,9 +70,10 @@ export class SymbolCanvas extends EventEmitter {
 
         this.isPressingDown = false;
     
+        console.log("Dispatching release, drew before", this.drewBeforeRelease)
 
         this.previousCoords = null;
-            // Do not register as a
+        // Do not register as a
         if(!this.drewBeforeRelease){
             this.drewBeforeRelease = true
             this.emit('click', this.initialClickPosition)
