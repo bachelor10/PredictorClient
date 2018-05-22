@@ -70,12 +70,12 @@ __Event emitters__
  * @name        draw
  * @description Emits when a user has drawn one step forward. 
  
- * @param {Coordinates2D}          currentCoords The coordinates where the user drew to
- * @param {Coordinates2D | null}   prevCoords    The coordinates the user drew from. Can be null if there are no previous  
- *                                               coords.
+ * @param {Coordinates2D} currentCoords The coordinates where the user drew to
+ * @param {Coordinates2D} prevCoords    The coordinates the user drew from. 
+ *                                      Can be null if there are no previous coords.
  *
  *
- * @name release
+ * @name           release
  * @description    Emits when a user has released the canvas. If the user did not draw. Click will be dispatched
  *                 instead of release.
 */
