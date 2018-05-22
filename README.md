@@ -18,7 +18,7 @@ The SymbolCanvas class exposes four public methods, as well as three events.
 __Constructor__
 ```ts
  /**
-  * @param element The element drawing should be made on
+  * @param   element The element drawing should be made on
   *
   * @returns {void}
   */
@@ -28,10 +28,10 @@ __Constructor__
 __Draw line__
 ```ts
 /**
- * @param fromCoords: The coordinates to draw from
- * @param toCoords: The coordinates to draw to
- * @param color: The color to draw the line, defaults to #A0A3A6
- * @param lineWidth: The width of the line, default to 5
+ * @param fromCoords   The coordinates to draw from
+ * @param toCoords     The coordinates to draw to
+ * @param color        The color to draw the line, defaults to #A0A3A6
+ * @param lineWidth    The width of the line, default to 5
  * 
  * @returns {void}
  */
@@ -41,9 +41,9 @@ drawLine(fromCoords: Coordinates2D, toCoords: Coordinates2D, color = "#A0A3A6", 
 __Draw circle__
 ```ts
 /**
- * @param coords: The coordinates in the center of the circle
- * @param radius: The radius of the circle, default to 10
- * @param fillStyle: The color to fill the circle, defaults to white
+ * @param coords     The coordinates in the center of the circle
+ * @param radius     The radius of the circle, default to 10
+ * @param fillStyle  The color to fill the circle, defaults to white
  * 
  * @returns {void}
  */
@@ -61,21 +61,22 @@ clearCanvas() : void
 __Event emitters__
 ```ts
 /**
- * @name click
+ * @name        click
  * @description Emits when the canvas was clicked.
  * 
- * @param {Coordinates2D} clickedCoords The coordinates where the canvas was clicked
+ * @param       {Coordinates2D} clickedCoords The coordinates where the canvas was clicked
  *
  *
- * @name draw
+ * @name        draw
  * @description Emits when a user has drawn one step forward. 
  
- * @param {Coordinates2D} currentCoords The coordinates where the user drew to
- * @param {Coordinates2D | null} prevCoords The coordinates the user drew from. Can be null if there are no previous coords.
+ * @param {Coordinates2D}          currentCoords The coordinates where the user drew to
+ * @param {Coordinates2D | null}   prevCoords    The coordinates the user drew from. Can be null if there are no previous  
+ *                                               coords.
  *
  *
  * @name release
- * @description Emits when a user has released the canvas. If the user did not draw. Click will be dispatched
+ * @description    Emits when a user has released the canvas. If the user did not draw. Click will be dispatched
  *                 instead of release.
 */
 ```
@@ -98,19 +99,19 @@ The CanvasController class exposes four public methods, as well as three events.
 __Constructor__
 ```ts
 /**
- * @param canvas   A canvas with a similar interface to SymbolCanvas
- * @param {Object}   options Options for how the controller should work. 
- * @param {bool}     options.isErasing Whether buffer should be removed or drawn. 
- *                     Can be accessed from symbolCanvas.options.isErasing
- * @param {number}   options.eraseRadius Number for the circle radius when erasing
- * @param {number}   options.minTraceCount How many samplings in a trace before it is valid
- * @param {number}   options.minTraceDistance The minimum distance a trace can be to be valid
- * @param {string}   options.canvasColor The color of the canvas
+ * @param canvas                                 A canvas with a similar interface to SymbolCanvas
+ * @param {Object}   options                     Options for how the controller should work. 
+ * @param {bool}     options.isErasing           Whether buffer should be removed or drawn. 
+ *                                               Can be accessed from symbolCanvas.options.isErasing
+ * @param {number}   options.eraseRadius         Number for the circle radius when erasing
+ * @param {number}   options.minTraceCount       How many samplings in a trace before it is valid
+ * @param {number}   options.minTraceDistance    The minimum distance a trace can be to be valid
+ * @param {string}   options.canvasColor         The color of the canvas
  * @param {string}   options.canvasSelectedColor The color a selected symbol should have
- * @param {number}   options.strokeWidth The width of each stroke
- * @param {string}   options.strokeColor The color of the drawn lines
- * @param {bool}     options.validateTrace If traces should be validated before being included in buffer. 
- *                     If false, minTraceCount and minTraceDistance will not be used.
+ * @param {number}   options.strokeWidth         The width of each stroke
+ * @param {string}   options.strokeColor         The color of the drawn lines
+ * @param {bool}     options.validateTrace       If traces should be validated before being included in buffer. 
+ *                                               If false, minTraceCount and minTraceDistance will not be used.
  *
  * @returns {void}
  */
@@ -144,16 +145,16 @@ markTraceGroups(traceGroupIndexes: number[], color, strokeWidth): void
 __Event emitters__
 ```ts
 /**
- * @name release
- * @description Emits when the canvas was released, and at least one valid trace has been drawn.
+ * @name               release
+ * @description        Emits when the canvas was released, and at least one valid trace has been drawn.
  * 
  * @param {number[][]} buffer The current buffer at the time of release. Includes a list of traces.
  *
  *
- * @name symbolclick
- * @description Emits when the canvas was clicked, and a trace was within range of the click. 
+ * @name               symbolclick
+ * @description        Emits when the canvas was clicked, and a trace was within range of the click. 
  
- * @param {number} overlappingIndex The index of the closest trace to the click.
+ * @param {number}     overlappingIndex The index of the closest trace to the click.
 
 */
 ```
